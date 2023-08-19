@@ -16,6 +16,8 @@ class _HomeState extends State<Home> {
   final _videoDest = TextEditingController();
   @override
   Widget build(BuildContext context) {
+    bool isDarkTheme = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -36,7 +38,9 @@ class _HomeState extends State<Home> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 SectionCard(
-                  imageIcon: 'assets/images/gallery.png',
+                  imageIcon: isDarkTheme
+                      ? 'assets/images/gallery_light.png'
+                      : 'assets/images/gallery.png',
                   firstFieldController: _imgSrc,
                   secondFieldController: _imgDest,
                   fieldHint: 'Images directory path',
@@ -48,7 +52,9 @@ class _HomeState extends State<Home> {
                     onPressed: () {},
                     child: const Text('Import All')),
                 SectionCard(
-                  imageIcon: 'assets/images/video_files.png',
+                  imageIcon: isDarkTheme
+                      ? 'assets/images/video_files_light.png'
+                      : 'assets/images/video_files.png',
                   firstFieldController: _videoSrc,
                   secondFieldController: _videoDest,
                   fieldHint: 'Videos directory path',

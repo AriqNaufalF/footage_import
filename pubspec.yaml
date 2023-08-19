@@ -63,6 +63,8 @@ flutter:
   assets:
     - assets/images/gallery.png
     - assets/images/video_files.png
+    - assets/images/gallery_light.png
+    - assets/images/video_files_light.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
