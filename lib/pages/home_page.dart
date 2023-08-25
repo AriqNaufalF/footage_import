@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:footage_import/widgets/section_card.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:footage_import/bloc/importer_cubit.dart';
+import 'package:footage_import/widgets/section_card_widget.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -9,11 +11,21 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  // TODO: Get path value after selection
   final _imgSrc = TextEditingController();
   final _imgDest = TextEditingController();
   final _videoSrc = TextEditingController();
   final _videoDest = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    var state = context.read<ImporterCubit>().state;
+    _imgSrc.addListener(() => state.imgSrc = _imgSrc.text);
+    _imgDest.addListener(() => state.imgDest = _imgDest.text);
+    _videoSrc.addListener(() => state.videoSrc = _videoSrc.text);
+    _videoDest.addListener(() => state.videoDest = _videoDest.text);
+  }
+
   @override
   Widget build(BuildContext context) {
     bool isDarkTheme = Theme.of(context).brightness == Brightness.dark;
@@ -48,8 +60,7 @@ class _HomeState extends State<Home> {
                 FilledButton(
                     style: FilledButton.styleFrom(
                         minimumSize: const Size(172, 51)),
-                    // TODO: Import all footage when button click
-                    onPressed: () {},
+                    onPressed: () => context.read<ImporterCubit>().importAll(),
                     child: const Text('Import All')),
                 SectionCard(
                   imageIcon: isDarkTheme

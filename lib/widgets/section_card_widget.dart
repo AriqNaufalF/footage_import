@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:footage_import/widgets/path_field.dart';
+import 'package:footage_import/widgets/path_field_widget.dart';
 
 class SectionCard extends StatelessWidget {
   const SectionCard({
