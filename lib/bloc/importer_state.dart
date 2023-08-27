@@ -1,3 +1,3 @@
 class ImporterState {
-  String? imgSrc, imgDest, videoSrc, videoDest;
+  String? imgSrc, videoSrc, finalDest;
 }

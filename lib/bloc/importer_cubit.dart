@@ -8,18 +8,19 @@ class ImporterCubit extends Cubit<ImporterState> {
 
   void importAll() async {
     // import photos
-    if (state.imgSrc != null && state.imgDest != null) {
-      _importPhotos(imgSrc: state.imgSrc!, imgDest: state.imgDest!);
+    if (state.imgSrc != null && state.finalDest != null) {
+      _importPhotos(imgSrc: state.imgSrc!, finalDest: state.finalDest!);
     }
 
-    if (state.videoSrc != null && state.videoDest != null) {
-      _importVideos(videoSrc: state.videoSrc!, videoDest: state.videoDest!);
+    if (state.videoSrc != null && state.finalDest != null) {
+      _importVideos(videoSrc: state.videoSrc!, finalDest: state.finalDest!);
     }
   }
 
-  void _importPhotos({required String imgSrc, required String imgDest}) async {
+  void _importPhotos(
+      {required String imgSrc, required String finalDest}) async {
     var src = Directory(imgSrc);
-    var dest = Directory(p.join(imgDest, 'Photos'));
+    var dest = Directory(p.join(finalDest, 'Photos'));
 
     if (!src.existsSync()) await src.create(recursive: true);
     if (!dest.existsSync()) await dest.create(recursive: true);
@@ -40,9 +41,9 @@ class ImporterCubit extends Cubit<ImporterState> {
   }
 
   void _importVideos(
-      {required String videoSrc, required String videoDest}) async {
+      {required String videoSrc, required String finalDest}) async {
     var src = Directory(videoSrc);
-    var dest = Directory(p.join(videoDest, 'Videos'));
+    var dest = Directory(p.join(finalDest, 'Videos'));
 
     if (!src.existsSync()) await src.create(recursive: true);
     if (!dest.existsSync()) await dest.create(recursive: true);
