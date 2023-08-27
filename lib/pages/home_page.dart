@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:footage_import/bloc/importer_cubit.dart';
+import 'package:footage_import/bloc/settings_cubit.dart';
 import 'package:footage_import/pages/settings_page.dart';
 import 'package:footage_import/widgets/import_card_widget.dart';
 import 'package:footage_import/widgets/outlined_card_widget.dart';
@@ -41,7 +42,7 @@ class _HomePageState extends State<HomePage> {
         double breakPoint = 884;
 
         if (constraints.maxWidth < breakPoint) {
-          return _buildNarrowContainer(_imgSrc, _videoSrc, _dest);
+          return _buildNarrowContainer(context, _imgSrc, _videoSrc, _dest);
         } else {
           return _buildWideContainer(context, _imgSrc, _videoSrc, _dest);
         }
@@ -50,10 +51,14 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildNarrowContainer(
+    BuildContext context,
     TextEditingController firstFieldController,
     TextEditingController secondFieldController,
     TextEditingController thirdFieldController,
   ) {
+    var SettingsState(:isFileGrouping, :isRawGrouping) =
+        context.watch<SettingsCubit>().state;
+
     return DefaultTabController(
       length: 2,
       child: Scaffold(
@@ -73,7 +78,9 @@ class _HomePageState extends State<HomePage> {
                   firstFieldController: firstFieldController,
                   secondFieldController: secondFieldController,
                   thirdFieldController: thirdFieldController,
-                  onImport: () => context.read<ImporterCubit>().importAll(),
+                  onImport: () => context.read<ImporterCubit>().importAll(
+                      isFileGrouping: isFileGrouping,
+                      isRawGrouping: isRawGrouping),
                 ),
               ),
               const SettingPage(),
@@ -90,6 +97,8 @@ class _HomePageState extends State<HomePage> {
     TextEditingController secondFieldController,
     TextEditingController thirdFieldController,
   ) {
+    var SettingsState(:isFileGrouping, :isRawGrouping) =
+        context.watch<SettingsCubit>().state;
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -116,7 +125,9 @@ class _HomePageState extends State<HomePage> {
                       firstFieldController: firstFieldController,
                       secondFieldController: secondFieldController,
                       thirdFieldController: thirdFieldController,
-                      onImport: () => context.read<ImporterCubit>().importAll(),
+                      onImport: () => context.read<ImporterCubit>().importAll(
+                          isFileGrouping: isFileGrouping,
+                          isRawGrouping: isRawGrouping),
                     ),
                     const Spacer(),
                     Container(

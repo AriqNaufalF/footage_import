@@ -7,25 +7,27 @@ class SettingTile extends StatelessWidget {
     required this.subtitle,
     required this.value,
     required this.onChanged,
+    this.enabled = true,
+    this.opacity = 1,
   });
 
   final String title;
   final String subtitle;
   final bool value;
+  final bool enabled;
+  final double opacity;
   final void Function(bool)? onChanged;
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(
-        title,
-        style: Theme.of(context).textTheme.bodyLarge,
+    return Opacity(
+      opacity: opacity,
+      child: ListTile(
+        enabled: enabled,
+        title: Text(title),
+        subtitle: Text(subtitle),
+        trailing: Switch(value: value, onChanged: onChanged),
       ),
-      subtitle: Text(
-        subtitle,
-        style: Theme.of(context).textTheme.bodyMedium,
-      ),
-      trailing: Switch(value: value, onChanged: onChanged),
     );
   }
 }

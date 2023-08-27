@@ -6,53 +6,96 @@ import 'importer_state.dart';
 class ImporterCubit extends Cubit<ImporterState> {
   ImporterCubit() : super(ImporterState());
 
-  void importAll() async {
+  void importAll({
+    required bool isFileGrouping,
+    required bool isRawGrouping,
+  }) async {
     // import photos
     if (state.imgSrc != null && state.finalDest != null) {
-      _importPhotos(imgSrc: state.imgSrc!, finalDest: state.finalDest!);
+      _importPhotos(
+        imgSrc: state.imgSrc!,
+        finalDest: state.finalDest!,
+        isFileGrouping: isFileGrouping,
+        isRawGrouping: isRawGrouping,
+      );
     }
 
     if (state.videoSrc != null && state.finalDest != null) {
-      _importVideos(videoSrc: state.videoSrc!, finalDest: state.finalDest!);
+      _importVideos(
+        videoSrc: state.videoSrc!,
+        finalDest: state.finalDest!,
+        isFileGrouping: isFileGrouping,
+      );
     }
   }
 
-  void _importPhotos(
-      {required String imgSrc, required String finalDest}) async {
+  void _importPhotos({
+    required String imgSrc,
+    required String finalDest,
+    bool isFileGrouping = true,
+    bool isRawGrouping = true,
+  }) async {
     var src = Directory(imgSrc);
-    var dest = Directory(p.join(finalDest, 'Photos'));
+    var dest = Directory(p.join(finalDest, isFileGrouping ? 'Photos' : ''));
+    late Directory rawDir;
+    late Directory jpgDir;
 
-    if (!src.existsSync()) await src.create(recursive: true);
-    if (!dest.existsSync()) await dest.create(recursive: true);
+    await src.create(recursive: true);
+    await dest.create(recursive: true);
+    if (isFileGrouping && isRawGrouping) {
+      rawDir = Directory(p.join(dest.path, 'RAW'));
+      jpgDir = Directory(p.join(dest.path, 'JPG'));
+      await rawDir.create();
+      await jpgDir.create();
+    }
 
-    src.listSync().whereType<File>().forEach((entity) {
+    void copyGroupByType(File entity) async {
       var File(:path) = entity;
       if (p.extension(path) == '.ARW') {
-        var rawDir = Directory(p.join(dest.path, 'RAW'));
-        if (!rawDir.existsSync()) rawDir.create();
-        entity.absolute.copy(p.join(rawDir.path, p.basename(path)));
+        await entity.absolute.copy(p.join(rawDir.path, p.basename(path)));
       } else {
-        var jpgDir = Directory(p.join(dest.path, 'JPG'));
-        if (!jpgDir.existsSync()) jpgDir.create();
-        entity.absolute.copy(p.join(jpgDir.path, p.basename(path)));
+        await entity.absolute.copy(p.join(jpgDir.path, p.basename(path)));
       }
-    });
-    print('Import photos completed!');
-  }
+    }
 
-  void _importVideos(
-      {required String videoSrc, required String finalDest}) async {
-    var src = Directory(videoSrc);
-    var dest = Directory(p.join(finalDest, 'Videos'));
-
-    if (!src.existsSync()) await src.create(recursive: true);
-    if (!dest.existsSync()) await dest.create(recursive: true);
+    void copyFile(File entity) async {
+      await entity.absolute.copy(p.join(dest.path, p.basename(entity.path)));
+    }
 
     src.listSync().whereType<File>().forEach(
       (entity) {
-        var File(:path) = entity;
-        if (p.extension(path) == '.MP4') {
-          entity.absolute.copy(p.join(dest.path, p.basename(path)));
+        try {
+          isFileGrouping && isRawGrouping
+              ? copyGroupByType(entity)
+              : copyFile(entity);
+        } catch (e) {
+          print(e);
+        }
+      },
+    );
+    print('Import photos completed!');
+  }
+
+  void _importVideos({
+    required String videoSrc,
+    required String finalDest,
+    bool isFileGrouping = true,
+  }) async {
+    var src = Directory(videoSrc);
+    var dest = Directory(p.join(finalDest, isFileGrouping ? 'Videos' : ''));
+
+    await src.create(recursive: true);
+    await dest.create(recursive: true);
+
+    src.listSync().whereType<File>().forEach(
+      (entity) async {
+        try {
+          var File(:path) = entity;
+          if (p.extension(path) == '.MP4') {
+            await entity.absolute.copy(p.join(dest.path, p.basename(path)));
+          }
+        } catch (e) {
+          print(e);
         }
       },
     );
