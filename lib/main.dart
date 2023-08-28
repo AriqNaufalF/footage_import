@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:footage_import/bloc/importer_cubit.dart';
 import 'package:footage_import/bloc/settings_cubit.dart';
 import 'package:footage_import/pages/home_page.dart';
@@ -24,6 +25,7 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(useMaterial3: true, colorScheme: lightColorScheme),
         darkTheme: ThemeData(useMaterial3: true, colorScheme: darkColorScheme),
         home: const HomePage(),
+        builder: EasyLoading.init(),
       ),
     );
   }

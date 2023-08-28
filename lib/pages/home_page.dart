@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:footage_import/bloc/importer_cubit.dart';
 import 'package:footage_import/bloc/settings_cubit.dart';
 import 'package:footage_import/pages/settings_page.dart';
+import 'package:footage_import/util/resource_util.dart';
 import 'package:footage_import/widgets/import_card_widget.dart';
 import 'package:footage_import/widgets/outlined_card_widget.dart';
 
@@ -78,9 +80,24 @@ class _HomePageState extends State<HomePage> {
                   firstFieldController: firstFieldController,
                   secondFieldController: secondFieldController,
                   thirdFieldController: thirdFieldController,
-                  onImport: () => context.read<ImporterCubit>().importAll(
-                      isFileGrouping: isFileGrouping,
-                      isRawGrouping: isRawGrouping),
+                  onImport: () async {
+                    EasyLoading.show(
+                        status: 'Importing...',
+                        maskType: EasyLoadingMaskType.black,
+                        dismissOnTap: false);
+                    var result = await context.read<ImporterCubit>().importAll(
+                        isFileGrouping: isFileGrouping,
+                        isRawGrouping: isRawGrouping);
+
+                    EasyLoading.dismiss();
+                    switch (result) {
+                      case ResourceError<void>():
+                        EasyLoading.showError(
+                            result.message ?? 'Error importing footage');
+                      case ResourceSuccess<void>():
+                        EasyLoading.showSuccess('Import completed');
+                    }
+                  },
                 ),
               ),
               const SettingPage(),
@@ -125,9 +142,26 @@ class _HomePageState extends State<HomePage> {
                       firstFieldController: firstFieldController,
                       secondFieldController: secondFieldController,
                       thirdFieldController: thirdFieldController,
-                      onImport: () => context.read<ImporterCubit>().importAll(
-                          isFileGrouping: isFileGrouping,
-                          isRawGrouping: isRawGrouping),
+                      onImport: () async {
+                        EasyLoading.show(
+                            status: 'Importing...',
+                            maskType: EasyLoadingMaskType.black,
+                            dismissOnTap: false);
+                        var result = await context
+                            .read<ImporterCubit>()
+                            .importAll(
+                                isFileGrouping: isFileGrouping,
+                                isRawGrouping: isRawGrouping);
+
+                        EasyLoading.dismiss();
+                        switch (result) {
+                          case ResourceError<void>():
+                            EasyLoading.showError(
+                                result.message ?? 'Error importing footage');
+                          case ResourceSuccess<void>():
+                            EasyLoading.showSuccess('Import completed');
+                        }
+                      },
                     ),
                     const Spacer(),
                     Container(

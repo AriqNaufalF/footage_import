@@ -1,35 +1,46 @@
 import 'dart:io';
 import 'package:bloc/bloc.dart';
+import 'package:footage_import/util/resource_util.dart';
 import 'package:path/path.dart' as p;
 import 'importer_state.dart';
 
 class ImporterCubit extends Cubit<ImporterState> {
   ImporterCubit() : super(ImporterState());
 
-  void importAll({
+  Future<Resource<void>> importAll({
     required bool isFileGrouping,
     required bool isRawGrouping,
   }) async {
-    // import photos
-    if (state.imgSrc != null && state.finalDest != null) {
-      _importPhotos(
-        imgSrc: state.imgSrc!,
-        finalDest: state.finalDest!,
-        isFileGrouping: isFileGrouping,
-        isRawGrouping: isRawGrouping,
-      );
-    }
+    try {
+      if ((state.imgSrc == null || state.videoSrc == null) &&
+          state.finalDest == null) {
+        throw Exception('Select source and destination first');
+      }
+      // import photos
+      if (state.imgSrc != null && state.finalDest != null) {
+        await _importPhotos(
+          imgSrc: state.imgSrc!,
+          finalDest: state.finalDest!,
+          isFileGrouping: isFileGrouping,
+          isRawGrouping: isRawGrouping,
+        );
+      }
 
-    if (state.videoSrc != null && state.finalDest != null) {
-      _importVideos(
-        videoSrc: state.videoSrc!,
-        finalDest: state.finalDest!,
-        isFileGrouping: isFileGrouping,
-      );
+      // import videos
+      if (state.videoSrc != null && state.finalDest != null) {
+        await _importVideos(
+          videoSrc: state.videoSrc!,
+          finalDest: state.finalDest!,
+          isFileGrouping: isFileGrouping,
+        );
+      }
+      return ResourceSuccess<void>();
+    } catch (e) {
+      return ResourceError<void>(message: e.toString());
     }
   }
 
-  void _importPhotos({
+  Future<void> _importPhotos({
     required String imgSrc,
     required String finalDest,
     bool isFileGrouping = true,
@@ -64,19 +75,14 @@ class ImporterCubit extends Cubit<ImporterState> {
 
     src.listSync().whereType<File>().forEach(
       (entity) {
-        try {
-          isFileGrouping && isRawGrouping
-              ? copyGroupByType(entity)
-              : copyFile(entity);
-        } catch (e) {
-          print(e);
-        }
+        isFileGrouping && isRawGrouping
+            ? copyGroupByType(entity)
+            : copyFile(entity);
       },
     );
-    print('Import photos completed!');
   }
 
-  void _importVideos({
+  Future<void> _importVideos({
     required String videoSrc,
     required String finalDest,
     bool isFileGrouping = true,
@@ -89,16 +95,11 @@ class ImporterCubit extends Cubit<ImporterState> {
 
     src.listSync().whereType<File>().forEach(
       (entity) async {
-        try {
-          var File(:path) = entity;
-          if (p.extension(path) == '.MP4') {
-            await entity.absolute.copy(p.join(dest.path, p.basename(path)));
-          }
-        } catch (e) {
-          print(e);
+        var File(:path) = entity;
+        if (p.extension(path) == '.MP4') {
+          await entity.absolute.copy(p.join(dest.path, p.basename(path)));
         }
       },
     );
-    print('Import videos completed!');
   }
 }
